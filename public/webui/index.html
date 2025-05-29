@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keyfree Flow UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 1em; }
+    .hidden { display: none; }
+    form { margin-bottom: 1em; }
+    label { display: block; margin: 0.2em 0; }
+  </style>
+</head>
+<body>
+  <h1>Keyfree Flow</h1>
+  <div id="loginSection">
+    <h2>Logg inn</h2>
+    <form id="loginForm">
+      <label>E‑post: <input type="email" id="email"></label>
+      <label>Passord: <input type="password" id="password"></label>
+      <button type="submit">Logg inn</button>
+    </form>
+    <pre id="loginError" style="color:red"></pre>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <h2>Mine låser</h2>
+    <button id="refreshLocks">Oppdater</button>
+    <ul id="lockList"></ul>
+
+    <h3>Opprett ny lås</h3>
+    <form id="createLockForm">
+      <label>Navn: <input type="text" id="lockName"></label>
+      <label>Type:
+        <select id="lockType">
+          <option value="raspberry">raspberry</option>
+          <option value="avior">avior</option>
+        </select>
+      </label>
+      <label>Adapter-data (JSON): <input type="text" id="adapterData" value='{"ip":"","pin":0}'></label>
+      <button type="submit">Opprett</button>
+    </form>
+
+    <h3>Tilgangsgrupper</h3>
+    <button id="refreshGroups">Oppdater grupper</button>
+    <ul id="groupList"></ul>
+    <h4>Opprett gruppe</h4>
+    <form id="createGroupForm">
+      <label>Navn: <input type="text" id="groupName"></label>
+      <button type="submit">Opprett gruppe</button>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
