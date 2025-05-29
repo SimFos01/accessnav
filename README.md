@@ -18,7 +18,7 @@ Dette er en Node.js-basert server for prototyping av adgangssystemet *Keyfree Fl
 2. Klon dette repositoriet og installer avhengigheter:
    ```bash
    git clone <repo-url>
-   cd kf_flow_v1.2
+   cd accessnav
    npm install
    ```
 3. Opprett en `.env`-fil i rotkatalogen og definer nødvendige miljøvariabler (se nedenfor).
