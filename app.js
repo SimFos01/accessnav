@@ -109,7 +109,7 @@ const swaggerDefinition = {
     description: 'API-dokumentasjon for Keyfree Flow prototype adgangssystem'
   },
   servers: [
-    { url: 'http://localhost:3000' } // tilpass om du bruker reverse proxy
+    { url: 'https://dev.nav.keyfree.falfheim.no' } // tilpass om du bruker reverse proxy
   ]
 };
 
@@ -122,4 +122,4 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Start server
-app.listen(3000, () => logger.info('🔐 Enclo server kjører på http://localhost:3000'));
+app.listen(3000, () => logger.info('🔐 Keyfree Dev Nav server kjører på http://localhost:3000'));

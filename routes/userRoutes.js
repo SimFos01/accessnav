@@ -71,7 +71,6 @@ router.post('/login', userController.loginUser);
  *       400:
  *         description: Mangler nødvendig data
  */
-
 router.post('/userlocks/shared-users', userlocksController.getSharedUsers);
 /**
  * @swagger
@@ -124,5 +123,9 @@ router.post('/userlocks/shared-users', userlocksController.getSharedUsers);
 *         '500': { description: Serverfeil }
 */
 router.get('/details/:userId', verifyToken, userController.getUserAccessDetails);
+
+router.post('/register', userController.registerUser);
+
+router.get('/isadmin', verifyToken, userController.checkIfAdmin);
 
 module.exports = router;

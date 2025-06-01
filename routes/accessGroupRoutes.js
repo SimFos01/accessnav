@@ -104,4 +104,7 @@ router.post('/add-lock', verifyToken, accessGroupController.addLockToGroup);
  */
 router.post('/accessgroup/users', accessGroupController.getUsersInAccessGroup);
 
+router.get('/:groupId/details', verifyToken, accessGroupController.getAccessGroupDetails);
+
+
 module.exports = router;

@@ -46,11 +46,12 @@ const { verifyToken } = require('../middleware/authMiddleware');
 
 router.post('/profile', verifyToken, async (req, res) => {
   try {
-    const result = await db.query(
+    const [rows] = await db.query(
       "SELECT id, first_name, last_name, email, phone_number, role, created_at FROM users WHERE id = ?",
       [req.user.id]
     );
-    const user = Array.isArray(result) ? result[0] : result;
+
+    const user = rows[0];
 
     if (!user) return res.status(404).json({ error: "Bruker ikke funnet" });
 
@@ -59,5 +60,6 @@ router.post('/profile', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Feil ved henting av profil' });
   }
 });
+
 
 module.exports = router;

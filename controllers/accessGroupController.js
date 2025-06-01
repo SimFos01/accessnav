@@ -159,3 +159,53 @@ exports.getAccessGroupsForUser = async (req, res) => {
     res.status(500).json({ error: 'Kunne ikke hente tilgangsgrupper' });
   }
 };
+
+exports.getAccessGroupDetails = async (req, res) => {
+  const groupId = req.params.groupId;
+
+  try {
+    // Hent gruppenavn
+    let [groupRows] = await db.query(
+      'SELECT id, name FROM access_groups WHERE id = ?',
+      [groupId]
+    );
+    groupRows = Array.isArray(groupRows) && Array.isArray(groupRows[0]) ? groupRows[0] : groupRows;
+    if (!groupRows || groupRows.length === 0) {
+      return res.status(404).json({ error: 'Adgangsgruppe ikke funnet' });
+    }
+
+    const group = groupRows[0];
+
+    // Hent medlemmer
+    let [members] = await db.query(
+     `SELECT u.id, u.email, CONCAT(u.first_name, ' ', u.last_name) AS username, agu.role
+     FROM access_group_users agu
+     JOIN users u ON agu.user_id = u.id
+     WHERE agu.group_id = ?`,
+     [groupId]
+   );
+members = Array.isArray(members) && Array.isArray(members[0]) ? members[0] : members;
+    members = Array.isArray(members) && Array.isArray(members[0]) ? members[0] : members;
+
+    // Hent låser
+    let [locks] = await db.query(
+      `SELECT l.id, l.name, l.type
+       FROM access_group_locks agl
+       JOIN locks l ON agl.lock_id = l.id
+       WHERE agl.group_id = ?`,
+      [groupId]
+    );
+    locks = Array.isArray(locks) && Array.isArray(locks[0]) ? locks[0] : locks;
+
+    res.json({
+      group_id: group.id,
+      group_name: group.name,
+      members: members || [],
+      locks: locks || []
+    });
+  } catch (err) {
+    console.error('🔥 Feil i getAccessGroupDetails:', err);
+    res.status(500).json({ error: 'Kunne ikke hente detaljer for gruppen' });
+  }
+};
+

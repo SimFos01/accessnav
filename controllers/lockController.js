@@ -96,8 +96,6 @@ exports.getSharedUsers = async (req, res) => {
   }
 };
 
-
-
 exports.getLockList = async (req, res) => {
   try {
     const token = req.body?.token;
@@ -148,7 +146,6 @@ exports.getLockList = async (req, res) => {
 };
 
 exports.getAllAccessibleLocks = async (req, res) => {
-  // User is populated by verifyToken middleware
   const userId = req.user && req.user.id;
 
   if (!userId) {
@@ -157,18 +154,22 @@ exports.getAllAccessibleLocks = async (req, res) => {
 
   try {
     const query = `
-      SELECT DISTINCT l.*
+      SELECT DISTINCT l.*, l.owner_id
       FROM locks l
       LEFT JOIN access_group_locks agl ON agl.lock_id = l.id
       LEFT JOIN access_group_users agu ON agu.group_id = agl.group_id
       LEFT JOIN user_locks ul ON ul.lock_id = l.id
       WHERE agu.user_id = ? OR ul.user_id = ? OR l.owner_id = ?
     `;
+
     let rows = await db.query(query, [userId, userId, userId]);
     rows = Array.isArray(rows) && Array.isArray(rows[0]) ? rows[0] : rows;
     if (!Array.isArray(rows)) rows = [];
 
-    const locks = (rows || []).map((lock) => {
+    const owned = [];
+    const shared = [];
+
+    (rows || []).forEach((lock) => {
       let adapterData = lock.adapter_data;
       if (typeof adapterData === 'string') {
         try {
@@ -177,7 +178,8 @@ exports.getAllAccessibleLocks = async (req, res) => {
           adapterData = {};
         }
       }
-      return {
+
+      const formatted = {
         id: lock.id,
         name: lock.name,
         type: lock.type,
@@ -187,12 +189,20 @@ exports.getAllAccessibleLocks = async (req, res) => {
         adress: lock.Adresse,
         adapter_data: adapterData
       };
+
+      if (lock.owner_id === userId) {
+        owned.push(formatted);
+      } else {
+        shared.push(formatted);
+      }
     });
 
     res.json({
       user_id: userId,
-      locks: locks
+      owned: owned,
+      shared: shared
     });
+
   } catch (err) {
     console.error('🔥 Feil i getAllAccessibleLocks:', err);
     res.status(500).json({ error: 'Kunne ikke hente låser' });
