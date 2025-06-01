@@ -1,6 +1,5 @@
 const logger = require('../utils/logger');
 logger.debug('>>> accessGroupController loaded');
-console.log('>>> FILEN LASTER INN');
 const jwt = require('jsonwebtoken');
 
 const db = require('../config/db');
@@ -185,7 +184,6 @@ exports.getAccessGroupDetails = async (req, res) => {
      [groupId]
    );
 members = Array.isArray(members) && Array.isArray(members[0]) ? members[0] : members;
-    members = Array.isArray(members) && Array.isArray(members[0]) ? members[0] : members;
 
     // Hent låser
     let [locks] = await db.query(

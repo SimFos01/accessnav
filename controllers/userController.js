@@ -2,18 +2,20 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const logger = require('../utils/logger');
+const tokenStore = require('../utils/tokenStore');
 
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   logger.info('[LOGIN] Attempt for email:', email);
 
   try {
-    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email.trim()]);
-    const user = rows[0];
+    let [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email.trim()]);
+    rows = Array.isArray(rows) && Array.isArray(rows[0]) ? rows[0] : rows;
+    const user = Array.isArray(rows) ? rows[0] : rows;
 
     if (!user) {
       logger.warn(`[LOGIN FEIL] Fant ingen bruker med e-post: ${email}`);
-      return res.status(404).json({ error: 'Bruker finnes ikke. Sjekk e-postadressen.' });
+      return res.status(401).json({ error: 'Ugyldig e-post eller passord' });
     }
 
     if (!user.password) {
@@ -26,7 +28,7 @@ exports.loginUser = async (req, res) => {
 
     if (!valid) {
       logger.warn(`[LOGIN FEIL] Feil passord for e-post: ${email}`);
-      return res.status(401).json({ error: 'Feil passord. Prøv igjen.' });
+      return res.status(401).json({ error: 'Ugyldig e-post eller passord' });
     }
 
     const token = jwt.sign(
@@ -258,6 +260,17 @@ exports.checkIfAdmin = async (req, res) => {
     console.error('Feil i checkIfAdmin:', err);
     res.status(500).json({ error: 'Serverfeil under admin-sjekk' });
   }
+};
+
+exports.signOut = (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1] || req.body?.token || req.query?.token;
+  tokenStore.revoke(token);
+  res.json({ message: 'Signed out' });
+};
+
+exports.getTestToken = (req, res) => {
+  const token = jwt.sign({ id: 0, email: 'test@example.com', role: 'test' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  res.json({ token });
 };
 
   

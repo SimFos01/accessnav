@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
+const tokenStore = require('../utils/tokenStore');
 
 function verifyToken(req, res, next) {
   logger.debug('[DEBUG] Header:', req.headers.authorization);
@@ -26,6 +27,10 @@ function verifyToken(req, res, next) {
   }
 
   try {
+    if (tokenStore.isRevoked(token)) {
+      console.warn('[AUTH] Token er tilbakekalt');
+      return res.status(401).json({ error: 'Ugyldig token' });
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     logger.info('[AUTH] Token verifisert for bruker', decoded.id);

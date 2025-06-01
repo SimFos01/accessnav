@@ -71,7 +71,7 @@ router.post('/login', userController.loginUser);
  *       400:
  *         description: Mangler nødvendig data
  */
-router.post('/userlocks/shared-users', userlocksController.getSharedUsers);
+router.post('/userlocks/shared-users', verifyToken, userlocksController.getSharedUsers);
 /**
  * @swagger
 *   /user/details/{userId}:
@@ -124,8 +124,92 @@ router.post('/userlocks/shared-users', userlocksController.getSharedUsers);
 */
 router.get('/details/:userId', verifyToken, userController.getUserAccessDetails);
 
+/**
+ * @swagger
+ * /user/register:
+ *   post:
+ *     summary: Registrer ny bruker
+ *     tags:
+ *       - Autentisering
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               phone_number:
+ *                 type: string
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Bruker registrert
+ *       409:
+ *         description: E-posten er allerede i bruk
+ *       400:
+ *         description: Manglende informasjon
+ *       500:
+ *         description: Serverfeil under registrering
+ */
 router.post('/register', userController.registerUser);
 
+/**
+ * @swagger
+ * /user/isadmin:
+ *   get:
+ *     summary: Sjekk om innlogget bruker er admin
+ *     tags:
+ *       - Bruker
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Om brukeren er admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isAdmin:
+ *                   type: boolean
+ *       500:
+ *         description: Serverfeil under admin-sjekk
+ */
 router.get('/isadmin', verifyToken, userController.checkIfAdmin);
+
+/**
+ * @swagger
+ * /user/signout:
+ *   post:
+ *     summary: Logg ut og ugyldiggjør gjeldende token
+ *     tags:
+ *       - Autentisering
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token slettet
+ */
+router.post('/signout', verifyToken, userController.signOut);
+
+/**
+ * @swagger
+ * /user/test-token:
+ *   get:
+ *     summary: Hent et testtoken
+ *     tags:
+ *       - Autentisering
+ *     responses:
+ *       200:
+ *         description: Returnerer et JWT for testing
+ */
+router.get('/test-token', userController.getTestToken);
 
 module.exports = router;

@@ -3,11 +3,6 @@ const router = express.Router();
 const { verifyToken, requireAdmin } = require('../middleware/authMiddleware');
 const accessGroupController = require('../controllers/accessGroupController');
 const logger = require('../utils/logger');
-logger.debug('TYPE OF requireAdmin:', typeof requireAdmin);
-logger.debug('controller:', accessGroupController);
-logger.debug('createGroup:', accessGroupController.createGroup);
-logger.debug('verifyToken:', typeof verifyToken);
-logger.debug('requireAdmin:', typeof requireAdmin);
 /**
  * @swagger
  * /accessGroup/list:
@@ -52,17 +47,102 @@ logger.debug('requireAdmin:', typeof requireAdmin);
  */
 router.post('/list', verifyToken, accessGroupController.getAccessGroupsForUser);
 
+/**
+ * 
+ * /accessgroup/create:
+ *   post:
+ *     summary: Opprett ny tilgangsgruppe
+ *     tags:
+ *       - Tilgangsgrupper
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Resultat av opprettelse
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 groupId:
+ *                   type: integer
+ *       500:
+ *         description: Kunne ikke opprette gruppe
+ */
 // Opprett ny tilgangsgruppe
 router.post('/create', verifyToken, accessGroupController.createGroup);
 
+/**
+ * 
+ * /accessgroup/add-user:
+ *   post:
+ *     summary: Legg til bruker i gruppe
+ *     tags:
+ *       - Tilgangsgrupper
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               groupId:
+ *                 type: integer
+ *               userId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Bruker lagt til
+ *       500:
+ *         description: Kunne ikke legge til bruker
+ */
 // Legg til bruker i gruppe
 router.post('/add-user', verifyToken, accessGroupController.addUserToGroup);
 
+/**
+ * 
+ * /accessgroup/add-lock:
+ *   post:
+ *     summary: Legg til lås i gruppe
+ *     tags:
+ *       - Tilgangsgrupper
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               groupId:
+ *                 type: integer
+ *               lockId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Lås lagt til
+ *       500:
+ *         description: Kunne ikke legge til lås
+ */
 // Legg til lås i gruppe
 router.post('/add-lock', verifyToken, accessGroupController.addLockToGroup);
 /**
  * @swagger
- * /accessgroup/users:
+ * /users:
  *   post:
  *     summary: Hent brukere i en tilgangsgruppe
  *     tags:
@@ -102,8 +182,31 @@ router.post('/add-lock', verifyToken, accessGroupController.addLockToGroup);
  *       500:
  *         description: Serverfeil
  */
-router.post('/accessgroup/users', accessGroupController.getUsersInAccessGroup);
+router.post('/users', verifyToken, accessGroupController.getUsersInAccessGroup);
 
+/**
+ * @swagger
+ * /accessgroup/{groupId}/details:
+ *   get:
+ *     summary: Hent detaljer for en tilgangsgruppe
+ *     tags:
+ *       - Tilgangsgrupper
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: groupId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Gruppens detaljer
+ *       404:
+ *         description: Adgangsgruppe ikke funnet
+ *       500:
+ *         description: Serverfeil
+ */
 router.get('/:groupId/details', verifyToken, accessGroupController.getAccessGroupDetails);
 
 
